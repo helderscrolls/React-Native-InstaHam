@@ -113,7 +113,7 @@ class Feed extends Component {
       .ref('photos')
       .orderByChild('posted')
       .once('value')
-      .then(function(snapshot) {
+      .then(snapshot => {
         const exists = snapshot.val() !== null;
         if (exists) data = snapshot.val();
         let photoFeed = that.state.photoFeed;
@@ -123,8 +123,9 @@ class Feed extends Component {
           database
             .ref('users')
             .child(photoObj.author)
+            .child('username')
             .once('value')
-            .then(function(snapshot) {
+            .then(snapshot => {
               const exists = snapshot.val() !== null;
               if (exists) data = snapshot.val();
               photoFeed.push({
@@ -132,7 +133,7 @@ class Feed extends Component {
                 url: photoObj.url,
                 caption: photoObj.caption,
                 posted: that.timeConverter(photoObj.posted),
-                author: data.username,
+                author: data,
               });
 
               that.setState({

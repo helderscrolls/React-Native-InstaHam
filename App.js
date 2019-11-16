@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
+import { f, auth, database, storage } from './config/config';
 
 import Feed from './app/screens/feed';
 import Upload from './app/screens/upload';
@@ -34,7 +35,21 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+
+    this.login();
   }
+
+  login = async () => {
+    // Force user to login
+    try {
+      let user = await auth.signInWithEmailAndPassword(
+        'toto@toto.com',
+        'Azertyu8',
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   render() {
     return <MainStack />;
