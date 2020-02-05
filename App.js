@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
+import { createStackNavigator } from 'react-navigation-stack';
 import { f, auth, database, storage } from './config/config';
 
 import Feed from './app/screens/feed';
 import Upload from './app/screens/upload';
 import Profile from './app/screens/profile';
+import userProfile from './app/screens/userProfile';
+import comments from './app/screens/comments';
 
 const styles = StyleSheet.create({
   container: {
@@ -17,7 +20,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const RootStack = createBottomTabNavigator({
+const BottomTabNavigator = createBottomTabNavigator({
   Feed: {
     screen: Feed,
   },
@@ -29,7 +32,20 @@ const RootStack = createBottomTabNavigator({
   },
 });
 
-const MainStack = createAppContainer(RootStack);
+const StackNavigator = createStackNavigator(
+  {
+    Home: { screen: BottomTabNavigator },
+    User: { screen: userProfile },
+    Comments: { screen: comments },
+  },
+  {
+    initialRouteName: 'Home',
+    mode: 'modal',
+    headerMode: 'none',
+  },
+);
+
+const MainStack = createAppContainer(StackNavigator);
 
 export default class App extends Component {
   constructor(props) {

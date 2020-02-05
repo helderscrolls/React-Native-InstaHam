@@ -71,7 +71,7 @@ class Feed extends Component {
     if (s === 1) {
       return ' ago';
     }
-    return 's go';
+    return 's ago';
   };
 
   timeConverter = timestamp => {
