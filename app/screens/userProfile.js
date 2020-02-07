@@ -7,6 +7,7 @@ import {
   Text,
   View,
   Image,
+  TouchableOpacityBase,
 } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
 
@@ -28,8 +29,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderColor: 'lightgrey',
     borderBottomWidth: 0.5,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    flexDirection: 'row',
+  },
+  titleContainerItems: {
+    width: 100,
+  },
+  titleContainerButton: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    paddingLeft: 10,
   },
   topSection: {
     justifyContent: 'space-evenly',
@@ -83,84 +93,105 @@ const styles = StyleSheet.create({
   },
 });
 
-class Profile extends Component {
+class userProfile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoggedin: false,
+      isLoaded: false,
     };
   }
 
   componentDidMount() {
-    const that = this;
-
-    f.auth().onAuthStateChanged(user => {
-      if (user) {
-        // Logged in
-        that.setState({
-          isLoggedin: true,
-        });
-      } else {
-        // Not logged in
-        that.setState({
-          isLoggedin: false,
-        });
-      }
-    });
+    this.checkParams();
   }
 
+  checkParams = () => {
+    const params = this.props.navigation.state.params;
+
+    if (params) {
+      if (params.userId) {
+        this.setState({
+          userId: params.userId,
+        });
+        this.fetchUserInfo(params.userId);
+      }
+    }
+  };
+
+  fetchUserInfo = userId => {
+    const that = this;
+
+    database
+      .ref('users')
+      .child(userId)
+      .child('username')
+      .once('value')
+      .then(function(snapshot) {
+        const exists = snapshot.val() !== null;
+        if (exists) data = snapshot.val();
+        that.setState({ username: data });
+      })
+      .catch(error => console.log(error));
+
+    database
+      .ref('users')
+      .child(userId)
+      .child('name')
+      .once('value')
+      .then(function(snapshot) {
+        const exists = snapshot.val() !== null;
+        if (exists) data = snapshot.val();
+        that.setState({ name: data });
+      })
+      .catch(error => console.log(error));
+
+    database
+      .ref('users')
+      .child(userId)
+      .child('avatar')
+      .once('value')
+      .then(function(snapshot) {
+        const exists = snapshot.val() !== null;
+        if (exists) data = snapshot.val();
+        that.setState({ avatar: data, isLoaded: true });
+      })
+      .catch(error => console.log(error));
+  };
+
   render() {
-    const { isLoggedin } = this.state;
+    const { isLoaded, name, username, avatar } = this.state;
     const { navigation } = this.props;
 
     return (
       <View style={styles.container}>
-        {isLoggedin === true ? (
-          // are logged in
+        {isLoaded === false ? (
+          <View>
+            <Text>Loading...</Text>
+          </View>
+        ) : (
           <View style={styles.profileContainer}>
             <View style={styles.titleContainer}>
+              <TouchableOpacity
+                style={styles.titleContainerItems}
+                onPress={() => navigation.goBack()}
+              >
+                <Text style={styles.titleContainerButton}>Go Back</Text>
+              </TouchableOpacity>
               <Text>Profile</Text>
+              <Text style={styles.titleContainerItems} />
             </View>
 
             <View style={styles.topSection}>
-              <Image
-                style={styles.profileAvatar}
-                source={{
-                  uri: 'https://api.adorable.io/avatars/285/test@user.i.png',
-                }}
-              />
+              <Image style={styles.profileAvatar} source={{ uri: avatar }} />
               <View style={styles.topSectionText}>
-                <Text>Name</Text>
-                <Text>@Username</Text>
+                <Text>{name}</Text>
+                <Text>{username}</Text>
               </View>
-            </View>
-
-            <View style={styles.middleSection}>
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Logout</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Edit Profile</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Upload')}
-                style={styles.uploadButton}
-              >
-                <Text style={styles.uploadButtonText}>Upload New +</Text>
-              </TouchableOpacity>
             </View>
 
             <View style={styles.bottomSection}>
               <Text>Loading photos...</Text>
             </View>
-          </View>
-        ) : (
-          // not logged in
-          <View style={styles.loadingContainer}>
-            <Text>You are not logged in</Text>
-            <Text>Please login to view your profile</Text>
           </View>
         )}
       </View>
@@ -168,10 +199,11 @@ class Profile extends Component {
   }
 }
 
-Profile.propTypes = {
+userProfile.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
+    goBack: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-export default Profile;
+export default userProfile;

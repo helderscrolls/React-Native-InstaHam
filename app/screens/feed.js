@@ -1,5 +1,13 @@
 import React, { Component } from 'react';
-import { FlatList, StyleSheet, Text, View, Image } from 'react-native';
+import PropTypes from 'prop-types';
+import {
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+} from 'react-native';
 
 import { f, auth, database, storage } from '../../config/config';
 
@@ -50,6 +58,7 @@ const styles = StyleSheet.create({
   feedComments: {
     marginTop: 10,
     textAlign: 'center',
+    color: 'blue',
   },
 });
 
@@ -134,6 +143,7 @@ class Feed extends Component {
                 caption: photoObj.caption,
                 posted: that.timeConverter(photoObj.posted),
                 author: data,
+                authorId: photoObj.author,
               });
 
               that.setState({
@@ -152,9 +162,8 @@ class Feed extends Component {
   };
 
   render() {
-    const { refresh } = this.state;
-    const { photoFeed } = this.state;
-    const { isLoading } = this.state;
+    const { refresh, photoFeed, isLoading } = this.state;
+    const { navigation } = this.props;
 
     return (
       <View style={styles.container}>
@@ -176,7 +185,13 @@ class Feed extends Component {
               <View style={styles.feedItems} key={index}>
                 <View style={styles.feedItemsTopText}>
                   <Text> {item.posted} </Text>
-                  <Text> {item.author} </Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('User', { userId: item.authorId })
+                    }
+                  >
+                    <Text> {item.author} </Text>
+                  </TouchableOpacity>
                 </View>
 
                 <View>
@@ -185,7 +200,13 @@ class Feed extends Component {
 
                 <View style={styles.feedCaptions}>
                   <Text> {item.caption} </Text>
-                  <Text style={styles.feedComments}>View Comments</Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('Comments', { userId: item.id })
+                    }
+                  >
+                    <Text style={styles.feedComments}>[ View Comments ]</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}
@@ -195,5 +216,11 @@ class Feed extends Component {
     );
   }
 }
+
+Feed.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 export default Feed;

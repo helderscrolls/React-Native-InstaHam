@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
   },
 });
 
-class Upload extends Component {
+class Comments extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -46,12 +46,12 @@ class Upload extends Component {
       <View style={styles.loadingContainer}>
         {isLoggedin === true ? (
           // are logged in
-          <Text>Upload</Text>
+          <Text>Comments</Text>
         ) : (
           // not logged in
           <View>
             <Text>You are not logged in</Text>
-            <Text>Please login to upload a photo</Text>
+            <Text>Please login to post a comment</Text>
           </View>
         )}
       </View>
@@ -59,4 +59,4 @@ class Upload extends Component {
   }
 }
 
-export default Upload;
+export default Comments;
