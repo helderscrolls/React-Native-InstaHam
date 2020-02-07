@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import {
+  Keyboard,
+  TouchableWithoutFeedback,
   ActivityIndicator,
   TextInput,
   FlatList,
@@ -133,7 +135,7 @@ class Upload extends Component {
   }
 
   checkPermissions = async () => {
-    const { status } = await await Permissions.askAsync(Permissions.CAMER);
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({ camera: status });
 
     const { statusRoll } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -193,6 +195,7 @@ class Upload extends Component {
   };
 
   uploadPublish = () => {
+    Keyboard.dismiss();
     const { caption, uri } = this.state;
 
     if (caption !== '') {
@@ -270,50 +273,52 @@ class Upload extends Component {
           // are logged in
           <View style={styles.mainContainer}>
             {imageSelected === true ? (
-              <View style={styles.imageSelectedContainer}>
-                <View style={styles.titleContainer}>
-                  <Text>Upload</Text>
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.imageSelectedContainer}>
+                  <View style={styles.titleContainer}>
+                    <Text>Upload</Text>
+                  </View>
+                  <View style={styles.captionContainer}>
+                    <Text style={styles.captionLabel}>Caption:</Text>
+                    <TextInput
+                      style={styles.captionInput}
+                      editable={true}
+                      placeholder={'Enter your caption...'}
+                      maxLength={150}
+                      multiline={true}
+                      numberOfLines={4}
+                      onChangeText={text => this.setState({ caption: text })}
+                    />
+
+                    <TouchableOpacity
+                      style={styles.submitButton}
+                      onPress={() => this.uploadPublish()}
+                    >
+                      <Text style={styles.submitButtonText}>
+                        Upload & Publish
+                      </Text>
+                    </TouchableOpacity>
+
+                    {isUploading === true ? (
+                      <View style={styles.uploadingPreviewContainer}>
+                        <Text>{progress}%</Text>
+                        {progress !== 100 ? (
+                          <ActivityIndicator size="small" color="blue" />
+                        ) : (
+                          <Text>Processing</Text>
+                        )}
+                      </View>
+                    ) : (
+                      <View></View>
+                    )}
+
+                    <Image
+                      style={styles.uploadingPreviewImage}
+                      source={{ uri: uri }}
+                    />
+                  </View>
                 </View>
-                <View style={styles.captionContainer}>
-                  <Text style={styles.captionLabel}>Caption:</Text>
-                  <TextInput
-                    style={styles.captionInput}
-                    editable={true}
-                    placeholder={'Enter your caption...'}
-                    maxLength={150}
-                    multiline={true}
-                    numberOfLines={4}
-                    onChangeText={text => this.setState({ caption: text })}
-                  />
-
-                  <TouchableOpacity
-                    style={styles.submitButton}
-                    onPress={() => this.uploadPublish()}
-                  >
-                    <Text style={styles.submitButtonText}>
-                      Upload & Publish
-                    </Text>
-                  </TouchableOpacity>
-
-                  {isUploading === true ? (
-                    <View style={styles.uploadingPreviewContainer}>
-                      <Text>{progress}%</Text>
-                      {progress !== 100 ? (
-                        <ActivityIndicator size="small" color="blue" />
-                      ) : (
-                        <Text>Processing</Text>
-                      )}
-                    </View>
-                  ) : (
-                    <View></View>
-                  )}
-
-                  <Image
-                    style={styles.uploadingPreviewImage}
-                    source={{ uri: uri }}
-                  />
-                </View>
-              </View>
+              </TouchableWithoutFeedback>
             ) : (
               <View style={styles.uploadContainer}>
                 <Text style={styles.uploadTitle}>Upload</Text>
